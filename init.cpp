@@ -3,7 +3,8 @@
  * http://beej.us/guide/bgipc/output/html/singlepage/bgipc.html#shm
  * http://stackoverflow.com/questions/3906437/opencv-matrix-into-shared-memory
  */
-
+#include <iostream>
+#include <fstream>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <signal.h>
@@ -11,12 +12,14 @@
 #include <opencv2/core/core.hpp>
 #include "opencv2/opencv.hpp"
 
+using namespace std;
+
 bool running = true;
 
 void exitHandle (int sig) {
     if (sig == SIGINT) {
         running = false;
-        std::cout << "Shutting down" << std::endl;
+        cout << "Shutting down" << endl;
     }
 }
 
@@ -27,13 +30,20 @@ int main(int argc, char const *argv[])
     int width = cam.get(CV_CAP_PROP_FRAME_WIDTH);
     int height = cam.get(CV_CAP_PROP_FRAME_HEIGHT);
 
+    // Write resolution to file
+    ofstream resInfo;
+    resInfo.open ("resInfo.txt");
+    resInfo << width << endl;
+    resInfo << height << endl;
+    resInfo.close();
+
     // Multiply by four since color image is three extra channels
     int memorySize = height * width * 4;
 
     int shmid;
     char* sharedData;
 
-    std::cout << "memorySize: " << memorySize << "(" << height << ", " << width <<  ")" << std::endl;
+    cout << "memorySize: " << memorySize << "(" << height << ", " << width <<  ")" << endl;
     shmid = shmget(2581, memorySize, 0666 | IPC_CREAT);
 
     if (shmid == -1) {
