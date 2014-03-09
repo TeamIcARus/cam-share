@@ -10,7 +10,9 @@
 int main(int argc, char const *argv[])
 {
     // TODO, get height and width from camera or something
-    int height = 544, width = 960;
+    // Enter your cameras width and height here as of now
+    //int height = 544, width = 960;
+    int height = 480, width = 640;
     int memorySize = height * width;
 
     int shmid;
@@ -31,14 +33,15 @@ int main(int argc, char const *argv[])
         return -1;
     }
 
-    cv::Mat frame(height, width, CV_8U); // does not copy
+    cv::Mat frame(height, width, CV_8UC3);
     cv::namedWindow("Read", CV_WINDOW_AUTOSIZE);
 
     // This lets us use the shared memory from init
     frame.data = sharedData;
     while (true) {
         cv::imshow("Read", frame);
-        if (cv::waitKey(20) == 'q') break;
+        char k = cv::waitKey(20);
+        if (k == 'q' || k == 'Q') break;
     }
     return 0;
 }

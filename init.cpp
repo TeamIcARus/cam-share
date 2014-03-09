@@ -27,7 +27,8 @@ int main(int argc, char const *argv[])
     int width = cam.get(CV_CAP_PROP_FRAME_WIDTH);
     int height = cam.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-    int memorySize = height * width;
+    // Multiply by four since color image is three extra channels
+    int memorySize = height * width * 4;
 
     int shmid;
     char* sharedData;
@@ -41,7 +42,7 @@ int main(int argc, char const *argv[])
     }
 
 
-    sharedData = (char*)shmat(shmid, (void *)0, 0);
+    sharedData = (char*)shmat(shmid, NULL, 0);
 
     if (sharedData == (char*)(-1)) {
         perror("shmat");
@@ -50,13 +51,11 @@ int main(int argc, char const *argv[])
 
     signal(SIGINT, exitHandle);
 
-    cv::Mat frame(height, width, CV_8U);
+    cv::Mat frame(height, width, CV_8UC3);
     while (running) {
         cam.read(frame);
 
         // This is the magic that copies everything into shared memory
-        // TODO, this is also probably where something screws up and the
-        // shared pictures gets grayed out and stuff
         for (int row = 0; row < frame.rows; row++) {
             int offset = row * frame.step;
             const uchar* ptr = (const uchar*) (frame.data + offset);
