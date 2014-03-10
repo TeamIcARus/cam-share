@@ -11,8 +11,10 @@
 
 #include <opencv2/core/core.hpp>
 #include "opencv2/opencv.hpp"
+#include "tclap/CmdLine.h"
 
 using namespace std;
+using namespace TCLAP;
 
 bool running = true;
 
@@ -23,10 +25,30 @@ void exitHandle (int sig) {
     }
 }
 
-int main(int argc, char const *argv[])
-{
-    cv::VideoCapture cam(CV_CAP_ANY);
+int main(int argc, char **argv) {
+    int cflag=CV_CAP_ANY;
+    try {
+        CmdLine cmd("Command description", ' ', "0.1");
+        ValueArg<int> camera ("c", "camera", "Select camera", false, CV_CAP_ANY, "int");
+        cmd.add(camera);
 
+        // Parse arguments
+        cmd.parse(argc, argv);
+        cflag=camera.getValue();
+    } catch (ArgException &e) {
+        cout << "ERROR: " << e.error() << " " << e.argId() << endl;
+        return 1;
+    }
+
+    cv::VideoCapture cam(cflag);
+
+    if (!cam.isOpened()) {
+        cout << "Error loading camera " << cflag << "." << endl;
+        return 1;
+    } else {
+        cout << "Camera " << cflag << " loaded OK" << endl;
+    }
+  
     int width = cam.get(CV_CAP_PROP_FRAME_WIDTH);
     int height = cam.get(CV_CAP_PROP_FRAME_HEIGHT);
 
@@ -65,11 +87,13 @@ int main(int argc, char const *argv[])
     while (running) {
         cam.read(frame);
 
-        // This is the magic that copies everything into shared memory
-        for (int row = 0; row < frame.rows; row++) {
-            int offset = row * frame.step;
-            const uchar* ptr = (const uchar*) (frame.data + offset);
-            memcpy((uchar*)(sharedData + offset), ptr, frame.step);
+        if (!frame.empty()) {
+            // This is the magic that copies everything into shared memory
+            for (int row = 0; row < frame.rows; row++) {
+                int offset = row * frame.step;
+                const uchar* ptr = (const uchar*) (frame.data + offset);
+                memcpy((uchar*)(sharedData + offset), ptr, frame.step);
+            }
         }
     }
 
