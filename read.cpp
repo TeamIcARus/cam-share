@@ -9,40 +9,54 @@
 #include "opencv2/gpu/gpu.hpp"
 
 #include <opencv2/highgui/highgui.hpp>
+#include "tclap/CmdLine.h"
 
 using namespace std;
+using namespace TCLAP;
 
 int main(int argc, char const *argv[])
 {
-    // TODO, get height and width from camera or something
-    // Right now it reads resolution from a file created by server
-    //int height = 544, width = 960;
-    //int height = 480, width = 640;
-    int width, height; 
-    
-    //Read resolution from file   
-    string line;
-    ifstream infile;
-    infile.open("resInfo.txt");
-    if (infile.is_open()) {
-        getline(infile, line);
-        width=atoi(line.c_str());
-        getline(infile, line);
-        height=atoi(line.c_str());
-        infile.close();
-    } else {
-        cout << "Unable to open file, using default resolution" << endl;
-        height = 544, width = 960;
+    string logPath;
+    try {
+        CmdLine cmd("Command description", ' ', "0.1");
+        ValueArg<string> log1 ("l", "log", "Select log file", false, "caminfo.log", "string");
+        cmd.add(log1);
+
+        // Parse arguments
+        cmd.parse(argc, argv);
+        logPath = log1.getValue();
+    } catch (ArgException &e) {
+        cout << "ERROR: " << e.error() << " " << e.argId() << endl;
+        return 1;
     }
 
-    cout << "width: " << width << " height: " << height << endl;
 
-    int memorySize = height * width;
+    // Right now it reads resolution from a file created by server
+    int width, height, memorySize;
+
+    //Read resolution and memory size from file
+    string line;
+    ifstream infile;
+    infile.open(logPath);
+    if (infile.is_open()) {
+        getline(infile, line);
+        // width
+        width=atoi(line.c_str());
+        getline(infile, line);
+        // height
+        height=atoi(line.c_str());
+        // memory size
+        getline(infile, line);
+        memorySize=atoi(line.c_str());
+        infile.close();
+    } else {
+        cerr << "Unable to open file, using default resolution" << endl;
+        height = 544, width = 960, memorySize = width * height * 4;
+    }
 
     int shmid;
     uchar* sharedData;
 
-    cout << "memorySize: " << memorySize << endl;
     shmid = shmget(2581, memorySize, 0666);
 
     if (shmid == -1) {

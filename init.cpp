@@ -26,15 +26,19 @@ void exitHandle (int sig) {
 }
 
 int main(int argc, char **argv) {
-    int cflag=CV_CAP_ANY;
+    int cflag;
+    string logPath;
     try {
         CmdLine cmd("Command description", ' ', "0.1");
         ValueArg<int> camera ("c", "camera", "Select camera", false, CV_CAP_ANY, "int");
+        ValueArg<string> log1 ("l", "log", "Select log file", false, "caminfo.log", "string");
         cmd.add(camera);
+        cmd.add(log1);
 
         // Parse arguments
         cmd.parse(argc, argv);
-        cflag=camera.getValue();
+        cflag = camera.getValue();
+        logPath = log1.getValue();
     } catch (ArgException &e) {
         cout << "ERROR: " << e.error() << " " << e.argId() << endl;
         return 1;
@@ -48,19 +52,22 @@ int main(int argc, char **argv) {
     } else {
         cout << "Camera " << cflag << " loaded OK" << endl;
     }
-  
+
     int width = cam.get(CV_CAP_PROP_FRAME_WIDTH);
     int height = cam.get(CV_CAP_PROP_FRAME_HEIGHT);
+    int memorySize = height * width * 4;
 
-    // Write resolution to file
-    ofstream resInfo;
-    resInfo.open ("resInfo.txt");
-    resInfo << width << endl;
-    resInfo << height << endl;
-    resInfo.close();
+    // Write resolution and memory size to file
+    ofstream logFile;
+    logFile.open (logPath);
+
+    logFile << width << endl;
+    logFile << height << endl;
+    logFile << memorySize << endl;
+
+    logFile.close();
 
     // Multiply by four since color image is three extra channels
-    int memorySize = height * width * 4;
 
     int shmid;
     char* sharedData;
@@ -104,5 +111,9 @@ int main(int argc, char **argv) {
     if (shmctl(shmid, IPC_RMID, NULL) == -1) {
         perror("shmctl");
     }
+    if (remove(logPath.c_str()) != 0) {
+        perror("remove");
+    }
+
     return 0;
 }

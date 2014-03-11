@@ -10,7 +10,7 @@ init.o: init.cpp
 	g++ -c -std=c++11 -Wall init.cpp -I ./
 
 read.o: read.cpp
-	g++ -c -std=c++11 -Wall read.cpp
+	g++ -c -std=c++11 -Wall read.cpp -I ./
 
 clean:
 	rm -rf *o init read
