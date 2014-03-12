@@ -68,4 +68,12 @@ public:
     ~Read() {
         // Free stuff?
     }
+
+    int getWidth() {
+        return width;
+    }
+
+    int getHeight() {
+        return height;
+    }
 };
