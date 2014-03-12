@@ -20,9 +20,10 @@ int main(int argc, char const *argv[])
 
 
     cv::namedWindow("Read", CV_WINDOW_AUTOSIZE);
+    cv::Mat* frame = new cv::Mat();
     while (true) {
-        cv::Mat frame = read->copyFrame();
-        cv::imshow("Read", frame);
+        read->frame.copyTo(*frame);
+        cv::imshow("Read", *frame);
         char k = cv::waitKey(20);
         if (k == 'q' || k == 'Q') break;
     }
