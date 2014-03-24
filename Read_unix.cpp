@@ -1,4 +1,16 @@
-#include <Read_unix.h>
+#include "Read_unix.h"
+
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <errno.h>
+
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/gpu/gpu.hpp>
+
+#include "tclap/CmdLine.h"
+#include <iostream>
+#include <fstream>
+
 
 using namespace std;
 using namespace TCLAP;
@@ -6,10 +18,6 @@ using namespace TCLAP;
 /** Default constructor */
 Read::Read(string logPath)
 {
-
-    //Set the name of the shared memory
-    memoryName = "cam-share-memory";
-
 	//Read resolution and memory size from file
 	string line;
 	ifstream infile;
@@ -52,10 +60,10 @@ Read::Read(string logPath)
 		throw strerror(errno);
 	}
 
-	frame = cv::Mat(height, width, CV_8UC3);
+	this->frame = cv::Mat(height, width, CV_8UC3);
 
 	// This lets us use the shared memory from init
-	frame.data = sharedData;
+	this->frame.data = sharedData;
 }
 
 Read::~Read()
@@ -65,20 +73,20 @@ Read::~Read()
 
 cv::Mat Read::getFrame()
 {
-    return frame;
+    return this->frame;
 }
 
 int Read::getWidth()
 {
-	return width;
+	return this->width;
 }
 
 int Read::getHeight()
 {
-	return height;
+	return this->height;
 }
 	
 int Read::getMemorysize()
 {
-    return memorySize;
+    return this->memorySize;
 }
