@@ -1,21 +1,14 @@
 #ifndef Read_h
 #define Read_h
-
-#include <iostream>
-#include <fstream>
-#include <signal.h>
-
+#include <string>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
-
-#include <../Boost/boost/interprocess/shared_memory_object.hpp>
-#include <../Boost/boost/interprocess/mapped_region.hpp>
-#include <string>
+#include "../Boost/boost/interprocess/mapped_region.hpp"
 
 class Read
 {
 public:
-    Read(string logPath);
+    Read(std::string logPath);
     ~Read();
     cv::Mat Read::getFrame();
     int getWidth();

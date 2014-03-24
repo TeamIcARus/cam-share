@@ -6,8 +6,8 @@ init: init.o
 read: testread.o Read.o
 	g++ Read.o testread.o -o read -I ./ -lopencv_highgui `pkg-config --libs opencv`
 
-init.o: init.cpp
-	g++ -c -std=c++11 -Wall init.cpp -I ./
+init.o: init_windows.cpp
+	g++ -c -std=c++11 -Wall init_windows.cpp -I ./
 
 Read.o: Read.cpp
 	g++ -c -std=c++11 -Wall Read.cpp -I ./

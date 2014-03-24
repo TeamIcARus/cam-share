@@ -1,4 +1,13 @@
-#include <Read_windows.h>
+#include "Read_windows.h"
+#include <iostream>
+#include <fstream>
+#include <signal.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+
+#include "../Boost/boost/interprocess/shared_memory_object.hpp"
+#include "../Boost/boost/interprocess/mapped_region.hpp"
 
 using namespace std;
 using namespace boost::interprocess;
@@ -8,7 +17,7 @@ Read::Read(string logPath)
 {
 
     //Set the name of the shared memory
-    memoryName = "cam-share-memory";
+    this->memoryName = "cam-share-memory";
     
     //Read resolution and memory size from file
     string line;
@@ -37,10 +46,10 @@ Read::Read(string logPath)
     shared_memory_object shm (open_only, memoryName.c_str(), read_only);
     
     cout << "Starting Read 3" << endl;
-    region = mapped_region(shm, read_only);
+    this->region = mapped_region(shm, read_only);
     
     cout << "Starting Read 4" << endl;
-    frame = cv::Mat(height, width, CV_8UC3);
+    this->frame = cv::Mat(height, width, CV_8UC3);
     
     cout << "Starting Read 5" << endl;
 }
@@ -52,21 +61,21 @@ Read::~Read()
 
 cv::Mat Read::getFrame()
 {
-    frame.data = (uchar*)region.get_address();
-    return frame;
+    this->frame.data = (uchar*)this->region.get_address();
+    return this->frame;
 }
 
 int Read::getWidth()
 {
-    return width;
+    return this->width;
 }
 
 int Read::getHeight()
 {
-    return height;
+    return this->height;
 }
 
 int Read::getMemorysize()
 {
-    return memorySize;
+    return this->memorySize;
 }
