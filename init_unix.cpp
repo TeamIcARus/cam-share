@@ -10,13 +10,15 @@
 #include <signal.h>
 
 #include <opencv2/core/core.hpp>
-#include "opencv2/opencv.hpp"
-#include "tclap/CmdLine.h"
+#include <opencv2/opencv.hpp>
+#include <tclap/CmdLine.h>
 
 using namespace std;
 using namespace TCLAP;
 
 bool running = true;
+//ID of the shared memory
+int memoryID = 2581;
 
 void exitHandle (int sig) {
     if (sig == SIGINT) {
@@ -73,7 +75,7 @@ int main(int argc, char **argv) {
     char* sharedData;
 
     cout << "memorySize: " << memorySize << "(" << height << ", " << width <<  ")" << endl;
-    shmid = shmget(2581, memorySize, 0666 | IPC_CREAT);
+    shmid = shmget(memoryID, memorySize, 0666 | IPC_CREAT);
 
     if (shmid == -1) {
         perror("shmget");
