@@ -1,4 +1,16 @@
-#include "Read.cpp"
+#include <string>
+#include "Read_unix.h"
+#include "tclap/CmdLine.h"
+
+#ifdef _WIN32
+#include "Read_windows.h"
+#else
+#include "Read_unix.h"
+#endif
+
+
+using namespace std;
+using namespace TCLAP;
 
 int main(int argc, char const *argv[])
 {
@@ -22,7 +34,7 @@ int main(int argc, char const *argv[])
     cv::namedWindow("Read", CV_WINDOW_AUTOSIZE);
     cv::Mat* frame = new cv::Mat();
     while (true) {
-        read->frame.copyTo(*frame);
+        read->getFrame().copyTo(*frame);
         cv::imshow("Read", *frame);
         char k = cv::waitKey(20);
         if (k == 'q' || k == 'Q') break;
