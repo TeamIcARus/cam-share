@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     int cflag;
     try
     {
-        CmdLine cmd("Command description", ' ', "0.1");
+        CmdLine cmd("Writes video input to the shared memory segment", ' ', "0.1");
         ValueArg<int> camera ("c", "camera", "Select camera", false, CV_CAP_ANY, "int");
         ValueArg<string> log1 ("l", "log", "Select log file", false, "caminfo.log", "string");
         cmd.add(camera);
